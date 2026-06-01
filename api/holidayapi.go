@@ -20,6 +20,15 @@ type Countries struct {
 	Name string `json:"name"`
 }
 
+func PrintCountries(countries []Countries) {
+	fmt.Print("The two letter codes for all countries are as follows.\n\n")
+	for i, v := range countries {
+		fmt.Printf("%d. Two letter code for %s is '%s'.\n", i+1, v.Name, v.Code)
+
+	}
+
+}
+
 func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
 	url := "https://date.nager.at/api/v3/AvailableCountries"
 	req, err := http.NewRequestWithContext(context.Background(),
