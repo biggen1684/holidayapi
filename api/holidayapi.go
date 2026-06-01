@@ -3,11 +3,9 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 )
 
 type Holiday struct {
@@ -17,20 +15,17 @@ type Holiday struct {
 	Global      bool   `json:"global"`
 }
 
-func GetHolidays() ([]Holiday, error) {
-	currentYear := fmt.Sprintf("%d", time.Now().Year())
-	year := flag.String("year", currentYear, "the year in xxxx format")
-	countryCode := flag.String("countrycode", "US", "2-letter ISO 3166-1 alpha-2 country code")
-	debug := flag.Bool("debug", false, "print raw API response")
-	flag.Parse()
-	url := fmt.Sprintf("https://date.nager.at/api/v3/PublicHolidays/%s/%s", *year, *countryCode)
-	client := &http.Client{Timeout: 30 * time.Second}
+type Countries struct {
+	Code string `json:"countryCode"`
+	Name string `json:"name"`
+}
 
+func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
+	url := "https://date.nager.at/api/v3/AvailableCountries"
 	req, err := http.NewRequestWithContext(context.Background(),
 		http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("connecting to API: %s", err)
-
 	}
 
 	req.Header.Add("Accept", "application/json")
@@ -39,10 +34,7 @@ func GetHolidays() ([]Holiday, error) {
 		return nil, fmt.Errorf("getting request: %s", err)
 	}
 	if res.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("invalid country code: %q", *countryCode)
-	}
-	if res.StatusCode == http.StatusBadRequest {
-		return nil, fmt.Errorf("invalid year: %q", *year)
+		return nil, fmt.Errorf("countries endpoint not found at URL")
 	}
 
 	defer res.Body.Close()
@@ -51,7 +43,47 @@ func GetHolidays() ([]Holiday, error) {
 		return nil, fmt.Errorf("reading body: %s", err)
 	}
 
-	if *debug {
+	if debug == true {
+		fmt.Println(string(body))
+	}
+
+	var countries []Countries
+	err = json.Unmarshal(body, &countries)
+	if err != nil {
+		return nil, fmt.Errorf("decoding body: %s", err)
+	}
+	return countries, nil
+
+}
+
+func GetHolidays(client *http.Client, year string, countryCode string, debug bool) ([]Holiday, error) {
+
+	url := fmt.Sprintf("https://date.nager.at/api/v3/PublicHolidays/%s/%s", year, countryCode)
+	req, err := http.NewRequestWithContext(context.Background(),
+		http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("connecting to API: %s", err)
+	}
+
+	req.Header.Add("Accept", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("getting request: %s", err)
+	}
+	if res.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("invalid country code: %q", countryCode)
+	}
+	if res.StatusCode == http.StatusBadRequest {
+		return nil, fmt.Errorf("invalid year: %q", year)
+	}
+
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading body: %s", err)
+	}
+
+	if debug == true {
 		fmt.Println(string(body))
 	}
 
