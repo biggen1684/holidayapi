@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"holiday/api"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/biggen1684/holidayapi/api"
 )
 
 func main() {
@@ -18,8 +19,8 @@ func main() {
 	year := flag.String("year", currentYear, "the year in xxxx format")
 	countryCode := flag.String("countrycode", "US", "2-letter ISO 3166-1 alpha-2 country code")
 	debug := flag.Bool("debug", false, "print raw API response (use -debug to enable)")
-	listCountries := flag.Bool("listcountries", false, "list all available countries (use -listcountries to enable)")
-	globalOnly := flag.Bool("globalonly", true, "only show global/federal holidays (use -globalonly=false to show all)")
+	listCountries := flag.Bool("listcountries", false, "list all available countries and their 2 letter codes (use -listcountries to enable)")
+	globalOnly := flag.Bool("globalonly", true, "only show global/federal holidays - may show duplicates (use -globalonly=false to show all)")
 	flag.Parse()
 
 	//List countries if flag is passed in and then terminate program
@@ -33,11 +34,14 @@ func main() {
 		return
 	}
 
+	//Get holidays
 	holidays, err := api.GetHolidays(client, *year, *countryCode, *debug)
 	if err != nil {
 		fmt.Printf("Error: %s.\n", err)
 		return
 	}
+
+	//Print holidays
 	api.PrintHolidays(holidays, *year, *countryCode, *globalOnly)
 
 }

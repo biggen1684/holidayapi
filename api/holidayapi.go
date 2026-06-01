@@ -53,7 +53,7 @@ func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
 		fmt.Println(string(body))
 	}
 
-	//Finally unmarshal into a slice containing the struct defined
+	//Finally unmarshal into a slice containing the struct declared above
 	var countries []Countries
 	err = json.Unmarshal(body, &countries)
 	if err != nil {
@@ -98,7 +98,7 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 		fmt.Println(string(body))
 	}
 
-	//Finally unmarshal into a slice containing the struct defined
+	//Finally unmarshal into a slice containing the struct declared above
 	var holidays []Holiday
 	err = json.Unmarshal(body, &holidays)
 	if err != nil {
@@ -108,6 +108,7 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 	return holidays, nil
 }
 
+// Prints all available countries if flag is used
 func PrintCountries(countries []Countries) {
 	fmt.Print("The two letter codes for all countries are as follows.\n\n")
 	for i, v := range countries {
@@ -115,20 +116,17 @@ func PrintCountries(countries []Countries) {
 	}
 }
 
+// Prints holidays with a simple counter and the year removed from print line
+// Default to printing only global holidays (national holidays)
+// If "-globalonly=false" flag is passed in, we print all known holidays
 func PrintHolidays(holidays []Holiday, year string, countryCode string, globalOnly bool) {
 	fmt.Printf("The holidays in %s for country %s are as follows:\n\n", year, countryCode)
-
-	if globalOnly == true {
-		count := 1
-		for _, v := range holidays {
-			if v.Global == true {
-				fmt.Printf("%d. %s %s\n", count, strings.TrimPrefix(v.Date, year+"-"), v.Name)
-				count++
-			}
+	count := 1
+	for _, v := range holidays {
+		if globalOnly && !v.Global {
+			continue
 		}
-		return
-	}
-	for i, v := range holidays {
-		fmt.Printf("%d. %s %s\n", i+1, strings.TrimPrefix(v.Date, year+"-"), v.Name)
+		fmt.Printf("%d. %s %s\n", count, strings.TrimPrefix(v.Date, year+"-"), v.Name)
+		count++
 	}
 }
