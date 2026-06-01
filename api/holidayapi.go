@@ -115,10 +115,20 @@ func PrintCountries(countries []Countries) {
 	}
 }
 
-func PrintHolidays(holidays []Holiday, year string, countryCode string) {
+func PrintHolidays(holidays []Holiday, year string, countryCode string, globalOnly bool) {
 	fmt.Printf("The holidays in %s for country %s are as follows:\n\n", year, countryCode)
+
+	if globalOnly == true {
+		count := 1
+		for _, v := range holidays {
+			if v.Global == true {
+				fmt.Printf("%d. %s %s\n", count, strings.TrimPrefix(v.Date, year+"-"), v.Name)
+				count++
+			}
+		}
+		return
+	}
 	for i, v := range holidays {
 		fmt.Printf("%d. %s %s\n", i+1, strings.TrimPrefix(v.Date, year+"-"), v.Name)
 	}
-	fmt.Println(holidays)
 }
