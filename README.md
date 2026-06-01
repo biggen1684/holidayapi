@@ -2,6 +2,8 @@
 
 A command-line tool that fetches public holidays for a given country and year using the [Nager.Date](https://date.nager.at) public API.
 
+> Note: This project was built as a learning exercise while teaching myself Go. There are probably better ways to accomplish what I did here, but I'm happy with how it turned out.
+
 ## Features
 
 - Look up public holidays for any supported country and year
