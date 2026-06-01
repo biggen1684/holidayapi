@@ -21,7 +21,7 @@ func main() {
 	listCountries := flag.Bool("listcountries", false, "list all available countries (use -listcountries to enable)")
 	flag.Parse()
 
-	//List countries if flag is passed in and end program
+	//List countries if flag is passed in and then terminate program
 	if *listCountries == true {
 		countries, err := api.ListCountries(client, *debug)
 		if err != nil {
@@ -37,8 +37,6 @@ func main() {
 		fmt.Printf("Error: %s.\n", err)
 		return
 	}
+	api.PrintHolidays(holidays, *year, *countryCode)
 
-	for _, v := range holidays {
-		fmt.Println(v)
-	}
 }

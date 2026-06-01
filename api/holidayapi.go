@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type Holiday struct {
@@ -20,16 +21,9 @@ type Countries struct {
 	Name string `json:"name"`
 }
 
-func PrintCountries(countries []Countries) {
-	fmt.Print("The two letter codes for all countries are as follows.\n\n")
-	for i, v := range countries {
-		fmt.Printf("%d. Two letter code for %s is '%s'.\n", i+1, v.Name, v.Code)
-
-	}
-
-}
-
 func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
+
+	//Setup context, Get, and URL
 	url := "https://date.nager.at/api/v3/AvailableCountries"
 	req, err := http.NewRequestWithContext(context.Background(),
 		http.MethodGet, url, nil)
@@ -37,6 +31,7 @@ func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
 		return nil, fmt.Errorf("connecting to API: %s", err)
 	}
 
+	//Request Header and deal with errors if needed
 	req.Header.Add("Accept", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
@@ -46,16 +41,19 @@ func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
 		return nil, fmt.Errorf("countries endpoint not found at URL")
 	}
 
+	//Read the raw body and close when done
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("reading body: %s", err)
 	}
 
+	//Print raw body if debug flag true
 	if debug == true {
 		fmt.Println(string(body))
 	}
 
+	//Finally unmarshal into a slice containing the struct defined
 	var countries []Countries
 	err = json.Unmarshal(body, &countries)
 	if err != nil {
@@ -67,6 +65,7 @@ func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
 
 func GetHolidays(client *http.Client, year string, countryCode string, debug bool) ([]Holiday, error) {
 
+	//Setup context, Get, and URL
 	url := fmt.Sprintf("https://date.nager.at/api/v3/PublicHolidays/%s/%s", year, countryCode)
 	req, err := http.NewRequestWithContext(context.Background(),
 		http.MethodGet, url, nil)
@@ -74,6 +73,7 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 		return nil, fmt.Errorf("connecting to API: %s", err)
 	}
 
+	//Request Header and deal with errors if needed
 	req.Header.Add("Accept", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
@@ -86,16 +86,19 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 		return nil, fmt.Errorf("invalid year: %q", year)
 	}
 
+	//Read the raw body and close when done
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("reading body: %s", err)
 	}
 
+	//Print raw body if debug flag true
 	if debug == true {
 		fmt.Println(string(body))
 	}
 
+	//Finally unmarshal into a slice containing the struct defined
 	var holidays []Holiday
 	err = json.Unmarshal(body, &holidays)
 	if err != nil {
@@ -103,4 +106,19 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 	}
 
 	return holidays, nil
+}
+
+func PrintCountries(countries []Countries) {
+	fmt.Print("The two letter codes for all countries are as follows.\n\n")
+	for i, v := range countries {
+		fmt.Printf("%d. Two letter code for %s is '%s'.\n", i+1, v.Name, v.Code)
+	}
+}
+
+func PrintHolidays(holidays []Holiday, year string, countryCode string) {
+	fmt.Printf("The holidays in %s for country %s are as follows:\n\n", year, countryCode)
+	for i, v := range holidays {
+		fmt.Printf("%d. %s %s\n", i+1, strings.TrimPrefix(v.Date, year+"-"), v.Name)
+	}
+	fmt.Println(holidays)
 }
