@@ -1,0 +1,11 @@
+# Binaries
+holidayapi
+holidayapi.exe
+*.exe
+*.out
+
+# Test binary
+*.test
+
+# Go workspace file
+go.work

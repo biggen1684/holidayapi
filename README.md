@@ -2,7 +2,7 @@
 
 A command-line tool that fetches public holidays for a given country and year using the [Nager.Date](https://date.nager.at) public API.
 
-> Note: This project was built as a learning exercise while teaching myself Go. There are probably better ways to accomplish what I did here, but I'm happy with how it turned out.
+> This project was built as a learning exercise while teaching myself Go.
 
 ## Features
 
@@ -10,7 +10,7 @@ A command-line tool that fetches public holidays for a given country and year us
 - Defaults to the current year and the United States
 - Show only federally recognized (global) holidays, or all holidays
 - List every country code the API supports
-- Debug mode to print the raw API response
+- Debug mode to print the raw API response (for troubleshooting)
 
 ## Installation
 
@@ -22,7 +22,7 @@ go build
 
 ## Usage
 
-Look up this year's US federal holidays (the default):
+Look up current year's US federal holidays (the default):
 
 ```bash
 go run main.go
@@ -39,6 +39,11 @@ Show all holidays, not just federal ones:
 ```bash
 go run main.go -globalonly=false
 ```
+
+> **Note:** Running with `-globalonly=false` may show some holidays more than once.
+> The Nager.Date API returns separate entries for holidays that apply to different
+> regions or have different observance types (e.g. public vs. bank holiday), so the
+> same holiday can appear multiple times on the same date.
 
 List all available country codes:
 
