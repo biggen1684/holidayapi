@@ -31,18 +31,18 @@ func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
 		return nil, fmt.Errorf("connecting to API: %s", err)
 	}
 
-	//Request Header and deal with errors if needed
+	//Request Header and deal with errors if needed and close when function ends
 	req.Header.Add("Accept", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("getting request: %s", err)
 	}
+	defer res.Body.Close()
 	if res.StatusCode == http.StatusNotFound {
 		return nil, fmt.Errorf("countries endpoint not found at URL")
 	}
 
-	//Read the raw body and close when done
-	defer res.Body.Close()
+	//Read the raw body
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("reading body: %s", err)
@@ -79,6 +79,7 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 	if err != nil {
 		return nil, fmt.Errorf("getting request: %s", err)
 	}
+	defer res.Body.Close()
 	if res.StatusCode == http.StatusNotFound {
 		return nil, fmt.Errorf("invalid country code: %q", countryCode)
 	}
@@ -86,8 +87,7 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 		return nil, fmt.Errorf("invalid year: %q", year)
 	}
 
-	//Read the raw body and close when done
-	defer res.Body.Close()
+	//Read the raw body
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("reading body: %s", err)
