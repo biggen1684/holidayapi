@@ -16,6 +16,7 @@ type Holiday struct {
 	Name        string `json:"name"`
 	Global      bool   `json:"global"`
 	Weekday     string
+	UnderThirty bool
 }
 
 type Countries struct {
@@ -108,12 +109,16 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 	}
 
 	//Parse date returned from API to actual day of week for printing later
+	//Use same loop to set the Under30 days bool to true for color printing later
 	for i, v := range holidays {
 		t, err := time.Parse("2006-01-02", v.Date)
 		if err != nil {
-			return nil, fmt.Errorf("problem parsing date to weekday %s", err)
+			return nil, fmt.Errorf("problem parsing date to time.Time %s", err)
 		}
 		holidays[i].Weekday = t.Weekday().String()
+		if time.Until(t) < 30*24*time.Hour {
+			holidays[i].UnderThirty = true
+		}
 	}
 
 	return holidays, nil
