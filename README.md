@@ -22,6 +22,10 @@ go build
 
 ## Usage
 
+> **Note:** Windows users should run `holidayapi.exe` from Command Prompt or PowerShell 
+> rather than double-clicking the file, otherwise the terminal will close immediately 
+> after the program exits.
+
 Look up current year's US federal holidays (the default):
 
 ```bash

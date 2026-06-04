@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Holiday struct {
@@ -14,6 +15,7 @@ type Holiday struct {
 	CountryCode string `json:"countryCode"`
 	Name        string `json:"name"`
 	Global      bool   `json:"global"`
+	Weekday     string
 }
 
 type Countries struct {
@@ -105,6 +107,15 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 		return nil, fmt.Errorf("decoding body: %s", err)
 	}
 
+	//Parse date returned from API to actual day of week for printing later
+	for i, v := range holidays {
+		t, err := time.Parse("2006-01-02", v.Date)
+		if err != nil {
+			return nil, fmt.Errorf("problem parsing date to weekday %s", err)
+		}
+		holidays[i].Weekday = t.Weekday().String()
+	}
+
 	return holidays, nil
 }
 
@@ -120,13 +131,13 @@ func PrintCountries(countries []Countries) {
 // Default to printing only global holidays (national holidays)
 // If "-globalonly=false" flag is passed in, we print all known holidays
 func PrintHolidays(holidays []Holiday, year string, countryCode string, globalOnly bool) {
-	fmt.Printf("The holidays in %s for country %s are as follows:\n\n", year, countryCode)
+	fmt.Printf("The holidays in %s for the country of %s are as follows:\n\n", year, countryCode)
 	count := 1
 	for _, v := range holidays {
 		if globalOnly && !v.Global {
 			continue
 		}
-		fmt.Printf("%d. %s %s\n", count, strings.TrimPrefix(v.Date, year+"-"), v.Name)
+		fmt.Printf("%d. %s, %s %s\n", count, v.Weekday, strings.TrimPrefix(v.Date, year+"-"), v.Name)
 		count++
 	}
 }
