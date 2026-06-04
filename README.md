@@ -74,19 +74,19 @@ go run main.go -debug
 ## Example Output
 
 ```
-The holidays in 2026 for country US are as follows:
+The holidays in 2026 for the country of US are as follows:
 
-1. 01-01 New Year's Day
-2. 01-19 Martin Luther King, Jr. Day
-3. 02-16 Presidents Day
-4. 05-25 Memorial Day
-5. 06-19 Juneteenth National Independence Day
-6. 07-03 Independence Day
-7. 09-07 Labour Day
-8. 10-12 Columbus Day
-9. 11-11 Veterans Day
-10. 11-26 Thanksgiving Day
-11. 12-25 Christmas Day
+1. Thursday, 01-01 New Year's Day
+2. Monday, 01-19 Martin Luther King, Jr. Day
+3. Monday, 02-16 Presidents Day
+4. Monday, 05-25 Memorial Day
+5. Friday, 06-19 Juneteenth National Independence Day
+6. Friday, 07-03 Independence Day
+7. Monday, 09-07 Labour Day
+8. Monday, 10-12 Columbus Day
+9. Wednesday, 11-11 Veterans Day
+10. Thursday, 11-26 Thanksgiving Day
+11. Friday, 12-25 Christmas Day
 ```
 
 ## License
