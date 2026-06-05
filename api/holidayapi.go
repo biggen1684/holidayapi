@@ -107,21 +107,34 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 	if err != nil {
 		return nil, fmt.Errorf("decoding body: %s", err)
 	}
+	return holidays, nil
+}
 
+func EnrichHolidays(rawHolidays []Holiday) ([]Holiday, error) {
 	//Parse date returned from API to actual day of week for printing
 	//Use same loop to set the Under30 days bool to true for color printing
-	for i, v := range holidays {
+	for i, v := range rawHolidays {
 		t, err := time.Parse("2006-01-02", v.Date)
 		if err != nil {
 			return nil, fmt.Errorf("problem parsing date to time.Time %s", err)
 		}
-		holidays[i].Weekday = t.Weekday().String()
-		if time.Until(t) < 30*24*time.Hour && time.Until(t) > 0 {
-			holidays[i].UnderThirty = true
-		}
+		rawHolidays[i].Weekday = weekday(t)
+		rawHolidays[i].UnderThirty = underThirty(t)
 	}
+	return rawHolidays, nil
+}
 
-	return holidays, nil
+// Helper function that returns weekday in string format
+func weekday(t time.Time) string {
+	return t.Weekday().String()
+}
+
+// Helper function that returns true if holiday is < 30 days away
+func underThirty(t time.Time) bool {
+	if time.Until(t) < 30*24*time.Hour && time.Until(t) > 0 {
+		return true
+	}
+	return false
 }
 
 // Prints all available countries if flag is used

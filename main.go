@@ -35,12 +35,15 @@ func main() {
 		return
 	}
 
-	//Get holidays
-	holidays, err := api.GetHolidays(client, *year, *countryCode, *debug)
+	//Get holidays from Nager API
+	rawHolidays, err := api.GetHolidays(client, *year, *countryCode, *debug)
 	if err != nil {
 		fmt.Printf("Error: %s.\n", err)
 		return
 	}
+
+	//Enrich holidays
+	holidays, err := api.EnrichHolidays(rawHolidays)
 
 	//Print holidays
 	api.PrintHolidays(holidays, *year, *countryCode, *federalOnly, *color)
