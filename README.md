@@ -23,7 +23,7 @@ go build
 
 ## Usage
 
-> **Note:** Windows users should run `holidayapi.exe` from Command Prompt or PowerShell 
+> **Note:** Windows users should run `holidayapi-windows-amd64.exe` from Command Prompt or PowerShell 
 > rather than double-clicking the file, otherwise the terminal will close immediately 
 > after the program exits.
 
