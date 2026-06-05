@@ -20,7 +20,8 @@ func main() {
 	countryCode := flag.String("countrycode", "US", "2-letter ISO 3166-1 alpha-2 country code")
 	debug := flag.Bool("debug", false, "print raw API response (use -debug to enable)")
 	listCountries := flag.Bool("listcountries", false, "list all available countries and their 2 letter codes (use -listcountries to enable)")
-	globalOnly := flag.Bool("globalonly", true, "only show global/federal holidays - may show duplicates (use -globalonly=false to show all)")
+	federalOnly := flag.Bool("federalonly", true, "only show federal holidays - may show duplicates (use -federalonly=false to show all)")
+	color := flag.Bool("color", true, "colorize holidays less than 30 days away (use -color=false to disable)")
 	flag.Parse()
 
 	//List countries if flag is passed in and then terminate program
@@ -42,6 +43,6 @@ func main() {
 	}
 
 	//Print holidays
-	api.PrintHolidays(holidays, *year, *countryCode, *globalOnly)
+	api.PrintHolidays(holidays, *year, *countryCode, *federalOnly, *color)
 
 }

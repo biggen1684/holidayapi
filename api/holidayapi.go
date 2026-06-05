@@ -108,15 +108,15 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 		return nil, fmt.Errorf("decoding body: %s", err)
 	}
 
-	//Parse date returned from API to actual day of week for printing later
-	//Use same loop to set the Under30 days bool to true for color printing later
+	//Parse date returned from API to actual day of week for printing
+	//Use same loop to set the Under30 days bool to true for color printing
 	for i, v := range holidays {
 		t, err := time.Parse("2006-01-02", v.Date)
 		if err != nil {
 			return nil, fmt.Errorf("problem parsing date to time.Time %s", err)
 		}
 		holidays[i].Weekday = t.Weekday().String()
-		if time.Until(t) < 30*24*time.Hour {
+		if time.Until(t) < 30*24*time.Hour && time.Until(t) > 0 {
 			holidays[i].UnderThirty = true
 		}
 	}
@@ -133,16 +133,22 @@ func PrintCountries(countries []Countries) {
 }
 
 // Prints holidays with a simple counter and the year removed from print line
-// Default to printing only global holidays (national holidays)
-// If "-globalonly=false" flag is passed in, we print all known holidays
-func PrintHolidays(holidays []Holiday, year string, countryCode string, globalOnly bool) {
+// Default to printing only federal holidays (national holidays)
+// If "-federalonly=false" flag is passed in, we print all known holidays
+// Also prints holidays as blue if under 30 days away and color=true (default) flag
+func PrintHolidays(holidays []Holiday, year string, countryCode string, federalOnly bool, color bool) {
 	fmt.Printf("The holidays in %s for the country of %s are as follows:\n\n", year, countryCode)
 	count := 1
 	for _, v := range holidays {
-		if globalOnly && !v.Global {
+		if federalOnly && !v.Global {
 			continue
 		}
-		fmt.Printf("%d. %s, %s %s\n", count, v.Weekday, strings.TrimPrefix(v.Date, year+"-"), v.Name)
+		line := fmt.Sprintf("%d. %s, %s %s\n", count, v.Weekday, strings.TrimPrefix(v.Date, year+"-"), v.Name)
+		if color && v.UnderThirty {
+			fmt.Printf("\033[1;34m%s\033[0m", line) // blue ANSI = under 30 days
+		} else {
+			fmt.Print(line)
+		}
 		count++
 	}
 }

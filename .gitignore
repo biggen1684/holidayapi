@@ -1,8 +1,10 @@
 # Binaries
 holidayapi
 holidayapi.exe
+holidayapi-linux-amd64
 *.exe
 *.out
+
 
 # Test binary
 *.test

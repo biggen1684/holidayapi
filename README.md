@@ -10,6 +10,7 @@ A command-line tool that fetches public holidays for a given country and year us
 - Defaults to the current year and the United States
 - Show only federally recognized (global) holidays, or all holidays
 - List every country code the API supports
+- Defaults to colorizing all holidays less than 30 days away to blue
 - Debug mode to print the raw API response (for troubleshooting)
 
 ## Installation
@@ -41,10 +42,10 @@ go run main.go -year=2025 -countrycode=CA
 Show all holidays, not just federal ones:
 
 ```bash
-go run main.go -globalonly=false
+go run main.go -federalonly=false
 ```
 
-> **Note:** Running with `-globalonly=false` may show some holidays more than once.
+> **Note:** Running with `-federalonly=false` may show some holidays more than once.
 > The Nager.Date API returns separate entries for holidays that apply to different
 > regions or have different observance types (e.g. public vs. bank holiday), so the
 > same holiday can appear multiple times on the same date.
@@ -53,6 +54,12 @@ List all available country codes:
 
 ```bash
 go run main.go -listcountries
+```
+
+Disable colorization:
+
+```bash
+go run main.go -color=false
 ```
 
 Print the raw API response (useful for troubleshooting):
@@ -67,12 +74,13 @@ go run main.go -debug
 |------|---------|-------------|
 | `-year` | current year | The year to look up, in `YYYY` format |
 | `-countrycode` | `US` | Two-letter ISO 3166-1 alpha-2 country code |
-| `-globalonly` | `true` | Show only federal/global holidays. Use `-globalonly=false` to show all |
+| `-federalonly` | `true` | Show only federal holidays. Use `-federalonly=false` to show all |
 | `-listcountries` | `false` | List all available country codes and exit |
 | `-debug` | `false` | Print the raw API response |
+| `-color` | `true` | Colorize all holidays less than 30 days away in blue. Use `-color=false` to disable |
 
 ## Example Output
-
+> Holidays within 30 days are highlighted in blue in the terminal.
 ```
 The holidays in 2026 for the country of US are as follows:
 
