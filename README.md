@@ -70,14 +70,12 @@ go run main.go -debug
 
 ## Flags
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `-year` | current year | The year to look up, in `YYYY` format |
-| `-countrycode` | `US` | Two-letter ISO 3166-1 alpha-2 country code |
-| `-federalonly` | `true` | Show only federal holidays. Use `-federalonly=false` to show all |
-| `-listcountries` | `false` | List all available country codes and exit |
-| `-debug` | `false` | Print the raw API response |
-| `-color` | `true` | Colorize all holidays less than 30 days away in blue. Use `-color=false` to disable |
+- `-year` — The year to look up, in `YYYY` format  
+- `-countrycode` — Two-letter ISO 3166-1 alpha-2 country code  
+- `-federalonly` — Show only federal holidays. Use `-federalonly=false` to show all  
+- `-listcountries` — List all available country codes and exit  
+- `-color` — Colorize holidays within 30 days in blue. Use `-color=false` to disable  
+- `-debug` — Print the raw API response
 
 ## Example Output
 > Holidays within 30 days are highlighted in blue in the terminal.
