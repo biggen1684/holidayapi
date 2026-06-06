@@ -22,7 +22,8 @@ func main() {
 	listCountries := flag.Bool("listcountries", false, "list all available countries and their 2 letter codes (use -listcountries to enable)")
 	federalOnly := flag.Bool("federalonly", true, "only show federal holidays - may show duplicates (use -federalonly=false to show all)")
 	color := flag.Bool("color", true, "colorize holidays less than 30 days away (use -color=false to disable)")
-	savecsv := flag.Bool("savecsv", false, "saves .csv file of holidays (use -savecsv to enable, default filename: holidays.csv)")
+	savecsv := flag.Bool("savecsv", false, "saves holidays to 'holidays.csv' file (use -savecsv to enable)")
+	//savejson := flag.Bool("savejson", false, "saves holidays to 'holidays.json' file (use -savejson to enable)")
 	flag.Parse()
 
 	//List countries if flag is passed in and then terminate program
@@ -46,8 +47,21 @@ func main() {
 	//Enrich holidays
 	holidays, err := api.EnrichHolidays(rawHolidays)
 
-	//Print holidays
-	if *savecsv == false {
+	//Output either .csv, .json, or terminal depending on flags used
+	switch {
+	case *savecsv:
+		err := api.OutputCSV(holidays)
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+			return
+		}
+	// case *savejson:
+	// 	err := api.OutputJSON(holidays)
+	// 	if err != nil {
+	// 		fmt.Printf("Error: %s\n", err)
+	// 		return
+	// 	}
+	default:
 		api.PrintHolidays(holidays, *year, *countryCode, *federalOnly, *color)
 	}
 }

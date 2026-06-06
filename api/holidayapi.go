@@ -2,11 +2,14 @@ package api
 
 import (
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
 	"math"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -144,15 +147,42 @@ func underThirty(t time.Time) bool {
 // Helper function that calculates how far holiday is (in days) away
 // Set today's date to midnight in local time zone
 // Then calculate difference from today and t rounding to nearest whole day
-// Retun 0 if negative (date has passed)
+// Negative numbers indicate holiday is in the past
 func daysaway(t time.Time) int {
 	n := time.Now()
 	now := time.Date(n.Year(), n.Month(), n.Day(), 0, 0, 0, 0, time.Local)
 	timeUntil := int(math.Round(t.Sub(now).Hours() / 24))
-	if timeUntil > 0 {
-		return timeUntil
+	return timeUntil
+}
+
+// Output holidays with enrichments to .csv file with a header
+func OutputCSV(holidays []Holiday) error {
+	file, err := os.Create("holidays.csv")
+	if err != nil {
+		return fmt.Errorf("failed creating file: %s", err)
 	}
-	return 0
+	defer file.Close()
+	w := csv.NewWriter(file)
+	defer w.Flush()
+	header := []string{"Date", "CountryCode", "Name", "Global", "Weekday", "UnderThirty", "DaysAway"}
+	err = w.Write(header)
+	if err != nil {
+		return fmt.Errorf("problem writing header: %s", err)
+	}
+	for _, holiday := range holidays {
+		row := []string{holiday.Date, holiday.CountryCode, holiday.Name,
+			strconv.FormatBool(holiday.Global), holiday.Weekday,
+			strconv.FormatBool(holiday.UnderThirty),
+			strconv.Itoa(holiday.DaysAway),
+		}
+		err = w.Write(row)
+		if err != nil {
+			return fmt.Errorf("problem writing to file: %s", err)
+		}
+
+	}
+	fmt.Println("holiday.csv file saved sucessfully")
+	return nil
 }
 
 // Prints all available countries if flag is used

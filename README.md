@@ -8,42 +8,48 @@ A command-line tool that fetches public holidays for a given country and year us
 
 - Look up public holidays for any supported country and year
 - Defaults to the current year and the United States
-- Shows the amount of days until next holiday
-- Show only federally recognized (global) holidays, or all holidays
+- Shows the number of days until each upcoming holiday
+- Show only federally recognized holidays, or all holidays
 - List every country code the API supports
-- Defaults to colorizing all holidays less than 30 days away to blue
+- Colorizes holidays within 30 days in blue (enabled by default)
+- Option to save output to a `.csv` file
 - Debug mode to print the raw API response (for troubleshooting)
 
 ## Installation
 
+**Option 1 — Download a pre-built binary** from the [Releases](https://github.com/biggen1684/holidayapi/releases) page and run it directly from a terminal.
+
+**Option 2 — Build from source** (requires Go):
+
 ```bash
 git clone https://github.com/biggen1684/holidayapi.git
 cd holidayapi
-go build
+go build -o holidayapi
+./holidayapi
 ```
 
 ## Usage
 
-> **Note:** Windows users should run `holidayapi-windows-amd64.exe` from Command Prompt or PowerShell 
-> rather than double-clicking the file, otherwise the terminal will close immediately 
+> **Note:** Windows users should run `holidayapi-windows-amd64.exe` from Command Prompt or PowerShell
+> rather than double-clicking the file, otherwise the terminal will close immediately
 > after the program exits.
 
 Look up current year's US federal holidays (the default):
 
 ```bash
-go run main.go
+./holidayapi
 ```
 
 Look up holidays for a specific year and country:
 
 ```bash
-go run main.go -year=2025 -countrycode=CA
+./holidayapi -year=2025 -countrycode=US
 ```
 
 Show all holidays, not just federal ones:
 
 ```bash
-go run main.go -federalonly=false
+./holidayapi -federalonly=false
 ```
 
 > **Note:** Running with `-federalonly=false` may show some holidays more than once.
@@ -54,32 +60,41 @@ go run main.go -federalonly=false
 List all available country codes:
 
 ```bash
-go run main.go -listcountries
+./holidayapi -listcountries
+```
+
+Save results to a CSV file:
+
+```bash
+./holidayapi -savecsv
 ```
 
 Disable colorization:
 
 ```bash
-go run main.go -color=false
+./holidayapi -color=false
 ```
 
 Print the raw API response (useful for troubleshooting):
 
 ```bash
-go run main.go -debug
+./holidayapi -debug
 ```
 
 ## Flags
 
-- `-year` — The year to look up, in `YYYY` format  
-- `-countrycode` — Two-letter ISO 3166-1 alpha-2 country code  
-- `-federalonly` — Show only federal holidays. Use `-federalonly=false` to show all  
-- `-listcountries` — List all available country codes and exit  
-- `-color` — Colorize holidays within 30 days in blue. Use `-color=false` to disable  
-- `-debug` — Print the raw API response
+- `-year` — The year to look up, in `YYYY` format. Default: current year.
+- `-countrycode` — Two-letter ISO 3166-1 alpha-2 country code. Default: `US`.
+- `-federalonly` — Show only federal holidays. Default: `true`. Use `-federalonly=false` to show all.
+- `-listcountries` — List all available country codes and exit.
+- `-savecsv` — Save holidays to `holidays.csv`. Use `-savecsv` to enable.
+- `-color` — Colorize holidays within 30 days in blue. Default: `true`. Use `-color=false` to disable.
+- `-debug` — Print the raw API response. Use `-debug` to enable.
 
 ## Example Output
+
 > Holidays within 30 days are highlighted in blue in the terminal.
+
 ```
 The holidays in 2026 for the country of US are as follows:
 
@@ -87,13 +102,38 @@ The holidays in 2026 for the country of US are as follows:
 2. Monday, 01-19 Martin Luther King, Jr. Day 
 3. Monday, 02-16 Presidents Day 
 4. Monday, 05-25 Memorial Day 
-5. Friday, 06-19 Juneteenth National Independence Day (14 days away)
-6. Friday, 07-03 Independence Day (28 days away)
-7. Monday, 09-07 Labour Day (94 days away)
-8. Monday, 10-12 Columbus Day (129 days away)
-9. Wednesday, 11-11 Veterans Day (159 days away)
-10. Thursday, 11-26 Thanksgiving Day (174 days away)
-11. Friday, 12-25 Christmas Day (203 days away)
+5. Friday, 06-19 Juneteenth National Independence Day (13 days away)
+6. Friday, 07-03 Independence Day (27 days away)
+7. Monday, 09-07 Labour Day (93 days away)
+8. Monday, 10-12 Columbus Day (128 days away)
+9. Wednesday, 11-11 Veterans Day (158 days away)
+10. Thursday, 11-26 Thanksgiving Day (173 days away)
+11. Friday, 12-25 Christmas Day (202 days away)
+```
+## CSV Output
+
+> Negative numbers in the `DaysAway` column indicate how many days have elapsed
+> since the holiday has passed.
+
+```
+Date,CountryCode,Name,Global,Weekday,UnderThirty,DaysAway
+2026-01-01,US,New Year's Day,true,Thursday,false,-156
+2026-01-19,US,"Martin Luther King, Jr. Day",true,Monday,false,-138
+2026-02-12,US,Lincoln's Birthday,false,Thursday,false,-114
+2026-02-16,US,Presidents Day,true,Monday,false,-110
+2026-04-03,US,Good Friday,false,Friday,false,-64
+2026-04-03,US,Good Friday,false,Friday,false,-64
+2026-05-08,US,Truman Day,false,Friday,false,-29
+2026-05-25,US,Memorial Day,true,Monday,false,-12
+2026-06-19,US,Juneteenth National Independence Day,true,Friday,true,13
+2026-07-03,US,Independence Day,true,Friday,true,27
+2026-09-07,US,Labour Day,true,Monday,false,93
+2026-10-12,US,Columbus Day,false,Monday,false,128
+2026-10-12,US,Columbus Day,true,Monday,false,128
+2026-10-12,US,Indigenous Peoples' Day,false,Monday,false,128
+2026-11-11,US,Veterans Day,true,Wednesday,false,158
+2026-11-26,US,Thanksgiving Day,true,Thursday,false,173
+2026-12-25,US,Christmas Day,true,Friday,false,202
 ```
 
 ## License

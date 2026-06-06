@@ -11,3 +11,7 @@ holidayapi-linux-amd64
 
 # Go workspace file
 go.work
+
+# Output files
+*.json
+*.csv
