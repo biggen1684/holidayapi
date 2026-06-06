@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ type Holiday struct {
 	Global      bool   `json:"global"`
 	Weekday     string
 	UnderThirty bool
+	DaysAway    int
 }
 
 type Countries struct {
@@ -120,6 +122,8 @@ func EnrichHolidays(rawHolidays []Holiday) ([]Holiday, error) {
 		}
 		rawHolidays[i].Weekday = weekday(t)
 		rawHolidays[i].UnderThirty = underThirty(t)
+		rawHolidays[i].DaysAway = daysaway(t)
+
 	}
 	return rawHolidays, nil
 }
@@ -135,6 +139,13 @@ func underThirty(t time.Time) bool {
 		return true
 	}
 	return false
+}
+
+// Truncate to midnight so we calculate whole days from start of today
+// rather than from the exact current time, which would cause off-by-one errors
+func daysaway(t time.Time) int {
+	now := time.Now().Truncate(24 * time.Hour)
+	return int(math.Round(t.Sub(now).Hours() / 24))
 }
 
 // Prints all available countries if flag is used
@@ -156,7 +167,11 @@ func PrintHolidays(holidays []Holiday, year string, countryCode string, federalO
 		if federalOnly && !v.Global {
 			continue
 		}
-		line := fmt.Sprintf("%d. %s, %s %s\n", count, v.Weekday, strings.TrimPrefix(v.Date, year+"-"), v.Name)
+		daysAway := ""
+		if v.DaysAway > 0 {
+			daysAway = fmt.Sprintf("(%d days away)", v.DaysAway)
+		}
+		line := fmt.Sprintf("%d. %s, %s %s %s\n", count, v.Weekday, strings.TrimPrefix(v.Date, year+"-"), v.Name, daysAway)
 		if color && v.UnderThirty {
 			fmt.Printf("\033[1;34m%s\033[0m", line) // blue ANSI = under 30 days
 		} else {

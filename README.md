@@ -8,6 +8,7 @@ A command-line tool that fetches public holidays for a given country and year us
 
 - Look up public holidays for any supported country and year
 - Defaults to the current year and the United States
+- Shows the amount of days until next holiday
 - Show only federally recognized (global) holidays, or all holidays
 - List every country code the API supports
 - Defaults to colorizing all holidays less than 30 days away to blue
@@ -82,17 +83,17 @@ go run main.go -debug
 ```
 The holidays in 2026 for the country of US are as follows:
 
-1. Thursday, 01-01 New Year's Day
-2. Monday, 01-19 Martin Luther King, Jr. Day
-3. Monday, 02-16 Presidents Day
-4. Monday, 05-25 Memorial Day
-5. Friday, 06-19 Juneteenth National Independence Day
-6. Friday, 07-03 Independence Day
-7. Monday, 09-07 Labour Day
-8. Monday, 10-12 Columbus Day
-9. Wednesday, 11-11 Veterans Day
-10. Thursday, 11-26 Thanksgiving Day
-11. Friday, 12-25 Christmas Day
+1. Thursday, 01-01 New Year's Day 
+2. Monday, 01-19 Martin Luther King, Jr. Day 
+3. Monday, 02-16 Presidents Day 
+4. Monday, 05-25 Memorial Day 
+5. Friday, 06-19 Juneteenth National Independence Day (14 days away)
+6. Friday, 07-03 Independence Day (28 days away)
+7. Monday, 09-07 Labour Day (94 days away)
+8. Monday, 10-12 Columbus Day (129 days away)
+9. Wednesday, 11-11 Veterans Day (159 days away)
+10. Thursday, 11-26 Thanksgiving Day (174 days away)
+11. Friday, 12-25 Christmas Day (203 days away)
 ```
 
 ## License
