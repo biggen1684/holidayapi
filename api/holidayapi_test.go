@@ -25,6 +25,7 @@ func TestUnderThirty_True(t *testing.T) {
 // Truncate to midnight so we calculate whole days from start of today
 // rather than from the exact current time, which would cause off-by-one errors
 func TestDaysAway(t *testing.T) {
-	date := time.Now().Truncate(24 * time.Hour).Add(5 * 24 * time.Hour)
+	n := time.Now()
+	date := time.Date(n.Year(), n.Month(), n.Day()+5, 0, 0, 0, 0, time.Local)
 	assert.Equal(t, 5, daysaway(date))
 }

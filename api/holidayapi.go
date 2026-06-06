@@ -116,7 +116,7 @@ func EnrichHolidays(rawHolidays []Holiday) ([]Holiday, error) {
 	//Parse date returned from API to actual day of week for printing
 	//Use same loop to set the Under30 days bool to true for color printing
 	for i, v := range rawHolidays {
-		t, err := time.Parse("2006-01-02", v.Date)
+		t, err := time.ParseInLocation("2006-01-02", v.Date, time.Local)
 		if err != nil {
 			return nil, fmt.Errorf("problem parsing date to time.Time %s", err)
 		}
@@ -141,11 +141,18 @@ func underThirty(t time.Time) bool {
 	return false
 }
 
-// Truncate to midnight so we calculate whole days from start of today
-// rather than from the exact current time, which would cause off-by-one errors
+// Helper function that calculates how far holiday is (in days) away
+// Set today's date to midnight in local time zone
+// Then calculate difference from today and t rounding to nearest whole day
+// Retun 0 if negative (date has passed)
 func daysaway(t time.Time) int {
-	now := time.Now().Truncate(24 * time.Hour)
-	return int(math.Round(t.Sub(now).Hours() / 24))
+	n := time.Now()
+	now := time.Date(n.Year(), n.Month(), n.Day(), 0, 0, 0, 0, time.Local)
+	timeUntil := int(math.Round(t.Sub(now).Hours() / 24))
+	if timeUntil > 0 {
+		return timeUntil
+	}
+	return 0
 }
 
 // Prints all available countries if flag is used
