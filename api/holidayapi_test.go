@@ -27,5 +27,11 @@ func TestUnderThirty_True(t *testing.T) {
 func TestDaysAway(t *testing.T) {
 	n := time.Now()
 	date := time.Date(n.Year(), n.Month(), n.Day()+5, 0, 0, 0, 0, time.Local)
-	assert.Equal(t, 5, daysaway(date))
+	assert.Equal(t, 5, daysAway(date))
+}
+
+func TestIsToday(t *testing.T) {
+	today := time.Now()
+	date := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, time.Local)
+	assert.True(t, isToday(date))
 }

@@ -22,6 +22,7 @@ type Holiday struct {
 	Weekday     string `json:"weekday"`
 	UnderThirty bool   `json:"underThirty"`
 	DaysAway    int    `json:"daysAway"`
+	IsToday     bool   `json:"isToday"`
 }
 
 type Countries struct {
@@ -125,7 +126,8 @@ func EnrichHolidays(rawHolidays []Holiday) ([]Holiday, error) {
 		}
 		rawHolidays[i].Weekday = weekday(t)
 		rawHolidays[i].UnderThirty = underThirty(t)
-		rawHolidays[i].DaysAway = daysaway(t)
+		rawHolidays[i].DaysAway = daysAway(t)
+		rawHolidays[i].IsToday = isToday(t)
 
 	}
 	return rawHolidays, nil
@@ -148,11 +150,21 @@ func underThirty(t time.Time) bool {
 // Set today's date to midnight in local time zone
 // Then calculate difference from today and t rounding to nearest whole day
 // Negative numbers indicate holiday is in the past
-func daysaway(t time.Time) int {
+func daysAway(t time.Time) int {
 	n := time.Now()
 	now := time.Date(n.Year(), n.Month(), n.Day(), 0, 0, 0, 0, time.Local)
 	timeUntil := int(math.Round(t.Sub(now).Hours() / 24))
 	return timeUntil
+}
+
+// Determine if today is a holiday and return true if so
+func isToday(t time.Time) bool {
+	now := time.Now()
+	if now.Year() == t.Year() && now.Month() == t.Month() && now.Day() == t.Day() {
+		return true
+	}
+	return false
+
 }
 
 // Output holidays with enrichments to .csv file with a header
@@ -164,7 +176,7 @@ func OutputCSV(holidays []Holiday) error {
 	defer file.Close()
 	w := csv.NewWriter(file)
 	defer w.Flush()
-	header := []string{"Date", "CountryCode", "Name", "Global", "Weekday", "UnderThirty", "DaysAway"}
+	header := []string{"Date", "CountryCode", "Name", "Global", "Weekday", "UnderThirty", "DaysAway", "isToday"}
 	err = w.Write(header)
 	if err != nil {
 		return fmt.Errorf("problem writing header: %s", err)
@@ -174,6 +186,7 @@ func OutputCSV(holidays []Holiday) error {
 			strconv.FormatBool(holiday.Global), holiday.Weekday,
 			strconv.FormatBool(holiday.UnderThirty),
 			strconv.Itoa(holiday.DaysAway),
+			strconv.FormatBool(holiday.IsToday),
 		}
 		err = w.Write(row)
 		if err != nil {
@@ -216,8 +229,14 @@ func PrintCountries(countries []Countries) {
 // Default to printing only federal holidays (national holidays)
 // If "-federalonly=false" flag is passed in, we print all known holidays
 // Also prints holidays as blue if under 30 days away and color=true (default) flag
+// Print out a statment if today is a holiday at the top
 func PrintHolidays(holidays []Holiday, year string, countryCode string, federalOnly bool, color bool) {
 	fmt.Printf("The holidays in %s for the country of %s are as follows:\n\n", year, countryCode)
+	for _, v := range holidays {
+		if v.IsToday {
+			fmt.Printf("🎉 Today is %s!\n\n", v.Name)
+		}
+	}
 	count := 1
 	for _, v := range holidays {
 		if federalOnly && !v.Global {

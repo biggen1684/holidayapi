@@ -8,8 +8,9 @@ A command-line tool that fetches public holidays for a given country and year us
 
 - Look up public holidays for any supported country and year
 - Defaults to the current year and the United States
-- Shows the number of days until each upcoming holiday
-- Show only federally recognized holidays, or all holidays
+- Prints the number of days until each upcoming holiday
+- Prints only federally recognized holidays, or all holidays
+- Prints if today is a holiday
 - List every country code the API supports
 - Colorizes holidays within 30 days in blue (enabled by default)
 - Option to save output to a `.csv` file
@@ -106,17 +107,19 @@ Print the raw API response (useful for troubleshooting):
 ```
 The holidays in 2026 for the country of US are as follows:
 
+🎉 Today is Independence Day!
+
 1. Thursday, 01-01 New Year's Day 
 2. Monday, 01-19 Martin Luther King, Jr. Day 
 3. Monday, 02-16 Presidents Day 
 4. Monday, 05-25 Memorial Day 
-5. Friday, 06-19 Juneteenth National Independence Day (13 days away)
-6. Friday, 07-03 Independence Day (27 days away)
-7. Monday, 09-07 Labour Day (93 days away)
-8. Monday, 10-12 Columbus Day (128 days away)
-9. Wednesday, 11-11 Veterans Day (158 days away)
-10. Thursday, 11-26 Thanksgiving Day (173 days away)
-11. Friday, 12-25 Christmas Day (202 days away)
+5. Friday, 06-19 Juneteenth National Independence Day (12 days away)
+6. Friday, 07-03 Independence Day (26 days away)
+7. Monday, 09-07 Labour Day (92 days away)
+8. Monday, 10-12 Columbus Day (127 days away)
+9. Wednesday, 11-11 Veterans Day (157 days away)
+10. Thursday, 11-26 Thanksgiving Day (172 days away)
+11. Friday, 12-25 Christmas Day (201 days away)
 ```
 
 ## Output Fields for JSON and CSV
@@ -130,39 +133,35 @@ The holidays in 2026 for the country of US are as follows:
 | `weekday` | string | Day of the week the holiday falls on |
 | `underThirty` | bool | `true` if the holiday is less than 30 days from today |
 | `daysAway` | int | Days until the holiday. Negative values indicate days elapsed since the holiday passed |
+| `isToday` | bool | `true` if holiday is today |
 
 ## CSV Output Example
 
-> Negative numbers in the `daysAway` column indicate how many days have elapsed
-> since the holiday has passed.
+```
 
+date,countryCode,name,global,weekday,underThirty,daysAway,isToday
+2026-01-01,US,New Year's Day,true,Thursday,false,-157,false
+2026-01-19,US,"Martin Luther King, Jr. Day",true,Monday,false,-139,false
+2026-02-12,US,Lincoln's Birthday,false,Thursday,false,-115,false
+2026-02-16,US,Presidents Day,true,Monday,false,-111,false
+2026-04-03,US,Good Friday,false,Friday,false,-65,false
+2026-04-03,US,Good Friday,false,Friday,false,-65,false
+2026-05-08,US,Truman Day,false,Friday,false,-30,false
+2026-05-25,US,Memorial Day,true,Monday,false,-13,false
+2026-06-19,US,Juneteenth National Independence Day,true,Friday,true,12,false
+2026-07-03,US,Independence Day,true,Friday,true,26,true
+2026-09-07,US,Labour Day,true,Monday,false,92,false
+2026-10-12,US,Columbus Day,false,Monday,false,127,false
+2026-10-12,US,Columbus Day,true,Monday,false,127,false
+2026-10-12,US,Indigenous Peoples' Day,false,Monday,false,127,false
+2026-11-11,US,Veterans Day,true,Wednesday,false,157,false
+2026-11-26,US,Thanksgiving Day,true,Thursday,false,172,false
+2026-12-25,US,Christmas Day,true,Friday,false,201,false
 ```
-Date,CountryCode,Name,Global,Weekday,UnderThirty,DaysAway
-2026-01-01,US,New Year's Day,true,Thursday,false,-156
-2026-01-19,US,"Martin Luther King, Jr. Day",true,Monday,false,-138
-2026-02-12,US,Lincoln's Birthday,false,Thursday,false,-114
-2026-02-16,US,Presidents Day,true,Monday,false,-110
-2026-04-03,US,Good Friday,false,Friday,false,-64
-2026-04-03,US,Good Friday,false,Friday,false,-64
-2026-05-08,US,Truman Day,false,Friday,false,-29
-2026-05-25,US,Memorial Day,true,Monday,false,-12
-2026-06-19,US,Juneteenth National Independence Day,true,Friday,true,13
-2026-07-03,US,Independence Day,true,Friday,true,27
-2026-09-07,US,Labour Day,true,Monday,false,93
-2026-10-12,US,Columbus Day,false,Monday,false,128
-2026-10-12,US,Columbus Day,true,Monday,false,128
-2026-10-12,US,Indigenous Peoples' Day,false,Monday,false,128
-2026-11-11,US,Veterans Day,true,Wednesday,false,158
-2026-11-26,US,Thanksgiving Day,true,Thursday,false,173
-2026-12-25,US,Christmas Day,true,Friday,false,202
-```
+
 ## JSON Output Example
 
-> If `daysAway` value shows a negative number, that is the elapsed days
-> since the holiday has passed.
-
-[{"date":"2026-01-01","countryCode":"US","name":"New Year's Day","global":true,"weekday":"Thursday","underThirty":false,"daysAway":-156},{"date":"2026-01-19","countryCode":"US","name":"Martin Luther King, Jr. Day","global":true,"weekday":"Monday","underThirty":false,"daysAway":-138}...]
-
+[{"date":"2026-01-01","countryCode":"US","name":"New Year's Day","global":true,"weekday":"Thursday","underThirty":false,"daysAway":-157,"isToday":false},{"date":"2026-01-19","countryCode":"US","name":"Martin Luther King, Jr. Day","global":true,"weekday":"Monday","underThirty":false,"daysAway":-139,"isToday":false},{"date":"2026-02-12","countryCode":"US","name":"Lincoln's Birthday","global":false,"weekday":"Thursday","underThirty":false,"daysAway":-115,"isToday":false},{"date":"2026-02-16","countryCode":"US","name":"Presidents Day","global":true,"weekday":"Monday","underThirty":false,"daysAway":-111,"isToday":false},{"date":"2026-04-03","countryCode":"US","name":"Good Friday","global":false,"weekday":"Friday","underThirty":false,"daysAway":-65,"isToday":false}...]
 
 ## License
 
