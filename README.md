@@ -13,6 +13,7 @@ A command-line tool that fetches public holidays for a given country and year us
 - List every country code the API supports
 - Colorizes holidays within 30 days in blue (enabled by default)
 - Option to save output to a `.csv` file
+- Option to save output to a `.json` file
 - Debug mode to print the raw API response (for troubleshooting)
 
 ## Installation
@@ -43,7 +44,7 @@ Look up current year's US federal holidays (the default):
 Look up holidays for a specific year and country:
 
 ```bash
-./holidayapi -year=2025 -countrycode=US
+./holidayapi -year=2025 -countrycode=CA
 ```
 
 Show all holidays, not just federal ones:
@@ -69,6 +70,12 @@ Save results to a CSV file:
 ./holidayapi -savecsv
 ```
 
+Save results to a JSON file:
+
+```bash
+./holidayapi -savejson
+```
+
 Disable colorization:
 
 ```bash
@@ -88,6 +95,7 @@ Print the raw API response (useful for troubleshooting):
 - `-federalonly` — Show only federal holidays. Default: `true`. Use `-federalonly=false` to show all.
 - `-listcountries` — List all available country codes and exit.
 - `-savecsv` — Save holidays to `holidays.csv`. Use `-savecsv` to enable.
+- `-savejson` — Save holidays to `holidays.json`. Use `-savejson` to enable.
 - `-color` — Colorize holidays within 30 days in blue. Default: `true`. Use `-color=false` to disable.
 - `-debug` — Print the raw API response. Use `-debug` to enable.
 
@@ -110,9 +118,22 @@ The holidays in 2026 for the country of US are as follows:
 10. Thursday, 11-26 Thanksgiving Day (173 days away)
 11. Friday, 12-25 Christmas Day (202 days away)
 ```
-## CSV Output
 
-> Negative numbers in the `DaysAway` column indicate how many days have elapsed
+## Output Fields for JSON and CSV
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `date` | string | Holiday date in `YYYY-MM-DD` format |
+| `countryCode` | string | Two-letter ISO country code |
+| `name` | string | Name of the holiday |
+| `global` | bool | `true` if the holiday is observed nationwide |
+| `weekday` | string | Day of the week the holiday falls on |
+| `underThirty` | bool | `true` if the holiday is less than 30 days from today |
+| `daysAway` | int | Days until the holiday. Negative values indicate days elapsed since the holiday passed |
+
+## CSV Output Example
+
+> Negative numbers in the `daysAway` column indicate how many days have elapsed
 > since the holiday has passed.
 
 ```
@@ -135,6 +156,13 @@ Date,CountryCode,Name,Global,Weekday,UnderThirty,DaysAway
 2026-11-26,US,Thanksgiving Day,true,Thursday,false,173
 2026-12-25,US,Christmas Day,true,Friday,false,202
 ```
+## JSON Output Example
+
+> If `daysAway` value shows a negative number, that is the elapsed days
+> since the holiday has passed.
+
+[{"date":"2026-01-01","countryCode":"US","name":"New Year's Day","global":true,"weekday":"Thursday","underThirty":false,"daysAway":-156},{"date":"2026-01-19","countryCode":"US","name":"Martin Luther King, Jr. Day","global":true,"weekday":"Monday","underThirty":false,"daysAway":-138}...]
+
 
 ## License
 

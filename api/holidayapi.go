@@ -19,9 +19,9 @@ type Holiday struct {
 	CountryCode string `json:"countryCode"`
 	Name        string `json:"name"`
 	Global      bool   `json:"global"`
-	Weekday     string
-	UnderThirty bool
-	DaysAway    int
+	Weekday     string `json:"weekday"`
+	UnderThirty bool   `json:"underThirty"`
+	DaysAway    int    `json:"daysAway"`
 }
 
 type Countries struct {
@@ -116,8 +116,8 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 }
 
 func EnrichHolidays(rawHolidays []Holiday) ([]Holiday, error) {
-	//Parse date returned from API to actual day of week for printing
-	//Use same loop to set the Under30 days bool to true for color printing
+	// Parse date returned from API to actual day of week for printing
+	// Use same loop for other enrichment functions
 	for i, v := range rawHolidays {
 		t, err := time.ParseInLocation("2006-01-02", v.Date, time.Local)
 		if err != nil {
@@ -181,7 +181,26 @@ func OutputCSV(holidays []Holiday) error {
 		}
 
 	}
-	fmt.Println("holiday.csv file saved sucessfully")
+	fmt.Println("holiday.csv file saved successfully")
+	return nil
+}
+
+// Output holidays with enrichments to .json file
+func OutputJSON(holidays []Holiday) error {
+	file, err := os.Create("holidays.json")
+	if err != nil {
+		return fmt.Errorf("failed creating file: %s", err)
+	}
+	defer file.Close()
+	jsonData, err := json.Marshal(holidays)
+	if err != nil {
+		return fmt.Errorf("problem running marshaler: %s", err)
+	}
+	err = os.WriteFile("holidays.json", jsonData, 0644)
+	if err != nil {
+		return fmt.Errorf("problem writing file: %s", err)
+	}
+	fmt.Println("holiday.json file saved successfully")
 	return nil
 }
 

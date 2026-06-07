@@ -14,7 +14,7 @@ func main() {
 
 	client := &http.Client{Timeout: 30 * time.Second}
 
-	//Create flags to pass into CLI. Defaults to current year and "US" while debug disabled by default
+	// Create flags to pass into CLI. Defaults to current year and "US" while debug disabled by default
 	currentYear := fmt.Sprintf("%d", time.Now().Year())
 	year := flag.String("year", currentYear, "the year in YYYY format")
 	countryCode := flag.String("countrycode", "US", "2-letter ISO 3166-1 alpha-2 country code")
@@ -23,10 +23,10 @@ func main() {
 	federalOnly := flag.Bool("federalonly", true, "only show federal holidays - may show duplicates (use -federalonly=false to show all)")
 	color := flag.Bool("color", true, "colorize holidays less than 30 days away (use -color=false to disable)")
 	savecsv := flag.Bool("savecsv", false, "saves holidays to 'holidays.csv' file (use -savecsv to enable)")
-	//savejson := flag.Bool("savejson", false, "saves holidays to 'holidays.json' file (use -savejson to enable)")
+	savejson := flag.Bool("savejson", false, "saves holidays to 'holidays.json' file (use -savejson to enable)")
 	flag.Parse()
 
-	//List countries if flag is passed in and then terminate program
+	// List countries if flag is passed in and then terminate program
 	if *listCountries == true {
 		countries, err := api.ListCountries(client, *debug)
 		if err != nil {
@@ -37,31 +37,32 @@ func main() {
 		return
 	}
 
-	//Get holidays from Nager API
+	// Get holidays from Nager API
 	rawHolidays, err := api.GetHolidays(client, *year, *countryCode, *debug)
 	if err != nil {
 		fmt.Printf("Error: %s.\n", err)
 		return
 	}
 
-	//Enrich holidays
+	// Enrich holidays
 	holidays, err := api.EnrichHolidays(rawHolidays)
 
-	//Output either .csv, .json, or terminal depending on flags used
-	switch {
-	case *savecsv:
+	// Output .csv, .json, or terminal depending on flags used
+	if *savecsv {
 		err := api.OutputCSV(holidays)
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
 			return
 		}
-	// case *savejson:
-	// 	err := api.OutputJSON(holidays)
-	// 	if err != nil {
-	// 		fmt.Printf("Error: %s\n", err)
-	// 		return
-	// 	}
-	default:
+	}
+	if *savejson {
+		err := api.OutputJSON(holidays)
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+			return
+		}
+	}
+	if !*savecsv && !*savejson {
 		api.PrintHolidays(holidays, *year, *countryCode, *federalOnly, *color)
 	}
 }
