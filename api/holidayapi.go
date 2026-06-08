@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 	"time"
 )
 
@@ -217,12 +218,21 @@ func OutputJSON(holidays []Holiday) error {
 	return nil
 }
 
-// Prints all available countries if flag is used
+// Prints all available countries if flag is used using text/tabwriter
 func PrintCountries(countries []Countries) {
 	fmt.Print("The two letter codes for all countries are as follows.\n\n")
+	// for i, v := range countries {
+	// 	fmt.Printf("%d. Two letter code for %s is '%s'.\n", i+1, v.Name, v.Code)
+	// }
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	for i, v := range countries {
-		fmt.Printf("%d. Two letter code for %s is '%s'.\n", i+1, v.Name, v.Code)
+		fmt.Fprintf(w, "%d. %s\t", i+1, v.Name)
+		if (i+1)%5 == 0 {
+			fmt.Fprintln(w)
+		}
 	}
+	w.Flush()
+	fmt.Println()
 }
 
 // Prints holidays with a simple counter and the year removed from print line
