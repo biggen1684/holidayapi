@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/biggen1684/holidayapi/api"
@@ -26,14 +25,30 @@ func main() {
 	savejson := flag.Bool("savejson", false, "saves holidays to 'holidays.json' file (use -savejson to enable)")
 	flag.Parse()
 
-	// List countries if flag is passed in and then terminate program
+	// List countries if flag is passed in
+	// Output json or .csv if flags passed in
+	// End program when done
 	if *listCountries == true {
 		countries, err := api.ListCountries(client, *debug)
 		if err != nil {
 			fmt.Printf("Error: %s.\n", err)
-			os.Exit(1)
+			return
 		}
 		api.PrintCountries(countries)
+		if *savecsv {
+			err := api.CountryOutputCSV(countries)
+			if err != nil {
+				fmt.Printf("Error: %s.\n", err)
+				return
+			}
+		}
+		if *savejson {
+			err := api.CountryOutputJSON(countries)
+			if err != nil {
+				fmt.Printf("Error: %s.\n", err)
+				return
+			}
+		}
 		return
 	}
 
@@ -49,14 +64,14 @@ func main() {
 
 	// Output .csv, .json, or terminal depending on flags used
 	if *savecsv {
-		err := api.OutputCSV(holidays)
+		err := api.HolidayOutputCSV(holidays)
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
 			return
 		}
 	}
 	if *savejson {
-		err := api.OutputJSON(holidays)
+		err := api.HolidayOutputJSON(holidays)
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
 			return

@@ -73,6 +73,49 @@ func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
 
 }
 
+func CountryOutputCSV(countries []Countries) error {
+	file, err := os.Create("countries.csv")
+	if err != nil {
+		return fmt.Errorf("failed creating file: %s", err)
+	}
+	defer file.Close()
+	w := csv.NewWriter(file)
+	defer w.Flush()
+	header := []string{"countryCode", "name"}
+	err = w.Write(header)
+	if err != nil {
+		return fmt.Errorf("problem writing header: %s", err)
+	}
+	for _, v := range countries {
+		row := []string{v.Code, v.Name}
+		err = w.Write(row)
+		if err != nil {
+			return fmt.Errorf("problem writing to file: %s", err)
+		}
+
+	}
+	fmt.Println("country.csv file saved successfully")
+	return nil
+}
+
+func CountryOutputJSON(countries []Countries) error {
+	file, err := os.Create("countries.json")
+	if err != nil {
+		return fmt.Errorf("failed creating file: %s", err)
+	}
+	defer file.Close()
+	jsonData, err := json.Marshal(countries)
+	if err != nil {
+		return fmt.Errorf("problem running marshaler: %s", err)
+	}
+	err = os.WriteFile("countries.json", jsonData, 0644)
+	if err != nil {
+		return fmt.Errorf("problem writing file: %s", err)
+	}
+	fmt.Println("countries.json file saved successfully")
+	return nil
+}
+
 func GetHolidays(client *http.Client, year string, countryCode string, debug bool) ([]Holiday, error) {
 
 	//Setup context, Get, and URL
@@ -169,7 +212,7 @@ func isToday(t time.Time) bool {
 }
 
 // Output holidays with enrichments to .csv file with a header
-func OutputCSV(holidays []Holiday) error {
+func HolidayOutputCSV(holidays []Holiday) error {
 	file, err := os.Create("holidays.csv")
 	if err != nil {
 		return fmt.Errorf("failed creating file: %s", err)
@@ -200,7 +243,7 @@ func OutputCSV(holidays []Holiday) error {
 }
 
 // Output holidays with enrichments to .json file
-func OutputJSON(holidays []Holiday) error {
+func HolidayOutputJSON(holidays []Holiday) error {
 	file, err := os.Create("holidays.json")
 	if err != nil {
 		return fmt.Errorf("failed creating file: %s", err)

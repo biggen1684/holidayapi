@@ -13,8 +13,8 @@ A command-line tool that fetches public holidays for a given country and year us
 - Prints if today is a holiday
 - List every country code the API supports
 - Colorizes holidays within 30 days in blue (enabled by default)
-- Option to save output to a `.csv` file
-- Option to save output to a `.json` file
+- Option to save output to a `.csv` file (for both holidays and countries)
+- Option to save output to a `.json` file (for both holidays and countries)
 - Debug mode to print the raw API response (for troubleshooting)
 
 ## Installation
@@ -94,13 +94,13 @@ Print the raw API response (useful for troubleshooting):
 - `-year` — The year to look up, in `YYYY` format. Default: current year.
 - `-countrycode` — Two-letter ISO 3166-1 alpha-2 country code. Default: `US`.
 - `-federalonly` — Show only federal holidays. Default: `true`. Use `-federalonly=false` to show all.
-- `-listcountries` — List all available country codes and exit.
-- `-savecsv` — Save holidays to `holidays.csv`. Use `-savecsv` to enable.
-- `-savejson` — Save holidays to `holidays.json`. Use `-savejson` to enable.
+- `-listcountries` — List all available country codes. Add `-savecsv` or `-savejson` to output list containing countries.
+- `-savecsv` — Save holidays or countries to `.csv`. Use `-savecsv` to enable. File names are `holidays.csv` and `countries.csv`.
+- `-savejson` — Save holidays or countries to `.json`. Use `-savejson` to enable. File names are `holidays.json` and `countries.json`.
 - `-color` — Colorize holidays within 30 days in blue. Default: `true`. Use `-color=false` to disable.
-- `-debug` — Print the raw API response. Use `-debug` to enable.
+- `-debug` — Print the raw API response for debugging. Use `-debug` to enable.
 
-## Example Output
+## Holiday Output Example
 
 > Holidays within 30 days are highlighted in blue in the terminal.
 
@@ -121,8 +121,20 @@ The holidays in 2026 for the country of US are as follows:
 10. Thursday, 11-26 Thanksgiving Day (172 days away)
 11. Friday, 12-25 Christmas Day (201 days away)
 ```
+## Country List Output Example
 
-## Output Fields for JSON and CSV
+```
+The two letter codes for all countries are as follows.
+
+1. Andorra (AD)        2. Albania (AL)           3. Armenia (AM)                    4. Angola (AO)                   5. Argentina (AR)           
+6. Austria (AT)        7. Australia (AU)         8. Åland Islands (AX)              9. Bosnia and Herzegovina (BA)   10. Barbados (BB)           
+11. Bangladesh (BD)    12. Belgium (BE)          13. Bulgaria (BG)                  14. Benin (BJ)                   15. Bolivia (BO)            
+16. Brazil (BR)        17. Bahamas (BS)          18. Botswana (BW)                  19. Belarus (BY)                 20. Belize (BZ)             
+21. Canada (CA)        22. DR Congo (CD)         23. Congo (CG)                     24. Switzerland (CH)             25. Chile (CL)
+...snip...
+```
+
+## Output Fields for holidays in JSON and CSV files
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -135,7 +147,14 @@ The holidays in 2026 for the country of US are as follows:
 | `daysAway` | int | Days until the holiday. Negative values indicate days elapsed since the holiday passed |
 | `isToday` | bool | `true` if holiday is today |
 
-## CSV Output Example
+## Output Fields for countries in JSON and CSV files
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `countryCode` | string | Two letter code [Nager.Date](https://date.nager.at) can accept |
+| `name` | string | Name of country |
+
+## Holiday CSV Output Example
 
 ```
 
@@ -159,9 +178,37 @@ date,countryCode,name,global,weekday,underThirty,daysAway,isToday
 2026-12-25,US,Christmas Day,true,Friday,false,201,false
 ```
 
-## JSON Output Example
+## Holiday JSON Output Example
+
+```
 
 [{"date":"2026-01-01","countryCode":"US","name":"New Year's Day","global":true,"weekday":"Thursday","underThirty":false,"daysAway":-157,"isToday":false},{"date":"2026-01-19","countryCode":"US","name":"Martin Luther King, Jr. Day","global":true,"weekday":"Monday","underThirty":false,"daysAway":-139,"isToday":false},{"date":"2026-02-12","countryCode":"US","name":"Lincoln's Birthday","global":false,"weekday":"Thursday","underThirty":false,"daysAway":-115,"isToday":false},{"date":"2026-02-16","countryCode":"US","name":"Presidents Day","global":true,"weekday":"Monday","underThirty":false,"daysAway":-111,"isToday":false},{"date":"2026-04-03","countryCode":"US","name":"Good Friday","global":false,"weekday":"Friday","underThirty":false,"daysAway":-65,"isToday":false}...]
+```
+
+## Country JSON Output Example
+```
+[{"countryCode":"AD","name":"Andorra"},{"countryCode":"AL","name":"Albania"},{"countryCode":"AM","name":"Armenia"},{"countryCode":"AO","name":"Angola"},{"countryCode":"AR","name":"Argentina"},{"countryCode":"AT","name":"Austria"},{"countryCode":"AU","name":"Australia"},{"countryCode":"AX","name":"Åland Islands"},{"countryCode":"BA","name":"Bosnia and Herzegovina"},{"countryCode":"BB","name":"Barbados"},{"countryCode":"BD","name":"Bangladesh"},{"countryCode":"BE","name":"Belgium"},{"countryCode":"BG","name":"Bulgaria"},{"countryCode":"BJ","name":"Benin"},{"countryCode":"BO","name":"Bolivia"},{"countryCode":"BR","name":"Brazil"},{"countryCode":"BS","name":"Bahamas"},{"countryCode":"BW","name":"Botswana"}...]
+```
+
+## Country CSV Output Example
+
+```
+countryCode,name
+AD,Andorra
+AL,Albania
+AM,Armenia
+AO,Angola
+AR,Argentina
+AT,Austria
+AU,Australia
+AX,Åland Islands
+BA,Bosnia and Herzegovina
+BB,Barbados
+BD,Bangladesh
+BE,Belgium
+BG,Bulgaria
+BJ,Benin
+```
 
 ## License
 
