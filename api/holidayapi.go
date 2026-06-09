@@ -91,10 +91,10 @@ func GetHolidays(client *http.Client, baseURL string, year string, countryCode s
 	}
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("invalid country code: %q", countryCode)
+		return nil, fmt.Errorf("the country code provided is invalid or not recognized: %q", countryCode)
 	}
 	if res.StatusCode == http.StatusBadRequest {
-		return nil, fmt.Errorf("invalid year: %q", year)
+		return nil, fmt.Errorf("the specified year %q is not supported", year)
 	}
 
 	//Read the raw body

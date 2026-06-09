@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Testing Listcountries function to see if data is marshaled correctly
+// Testing Listcountries function to see if valid data is marshaled correctly
 func TestListCountries(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -24,6 +24,55 @@ func TestListCountries(t *testing.T) {
 	assert.Equal(t, "US", countries[0].Code)
 	assert.Equal(t, "Canada", countries[1].Name)
 	assert.Equal(t, "CA", countries[1].Code)
+}
+
+// Testing that wrong endpoint is returned as 404 error
+func TestListCountries_NotFound(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer server.Close()
+	client := server.Client()
+	countries, err := ListCountries(client, server.URL, false)
+	assert.Nil(t, countries)
+	assert.EqualError(t, err, "countries endpoint not found at URL")
+}
+
+// Test GetHolidays if valid data is marshaled correctly
+func TestGetHolidays(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`[{"date":"2026-01-01","localName":"New Year's Day","name":"New Year's Day","countryCode":"US","fixed":false,"global":true,"counties":null,"launchYear":null,"types":["Public","Bank"]}]`))
+	}))
+	defer server.Close()
+	client := server.Client()
+	holidays, err := GetHolidays(client, server.URL, "2026", "US", false)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(holidays))
+	assert.Equal(t, "New Year's Day", holidays[0].Name)
+}
+
+// Test GetHolidays if an unsupported is handled correctly
+func TestGetHolidays_Bad_Year(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+	}))
+	defer server.Close()
+	client := server.Client()
+	holidays, err := GetHolidays(client, server.URL, "1000", "US", false)
+	assert.Nil(t, holidays)
+	assert.Error(t, err)
+}
+
+func TestGetHolidays_Bad_Country(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer server.Close()
+	client := server.Client()
+	holidays, err := GetHolidays(client, server.URL, "2000", "ZZZ", false)
+	assert.Nil(t, holidays)
+	assert.Error(t, err)
 }
 
 func TestWeekday(t *testing.T) {
