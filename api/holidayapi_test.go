@@ -1,11 +1,30 @@
 package api
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+// Testing Listcountries function to see if data is marshaled correctly
+func TestListCountries(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`[{"countryCode":"US","name":"United States"},{"countryCode":"CA","name":"Canada"}]`))
+	}))
+	defer server.Close()
+	client := server.Client()
+	countries, err := ListCountries(client, server.URL, false)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(countries))
+	assert.Equal(t, "United States", countries[0].Name)
+	assert.Equal(t, "US", countries[0].Code)
+	assert.Equal(t, "Canada", countries[1].Name)
+	assert.Equal(t, "CA", countries[1].Code)
+}
 
 func TestWeekday(t *testing.T) {
 	date := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)

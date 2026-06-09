@@ -31,10 +31,10 @@ type Countries struct {
 	Name string `json:"name"`
 }
 
-func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
-
+// Get Countries from Nager
+func ListCountries(client *http.Client, baseURL string, debug bool) ([]Countries, error) {
 	//Setup context, Get, and URL
-	url := "https://date.nager.at/api/v3/AvailableCountries"
+	url := baseURL + "/AvailableCountries"
 	req, err := http.NewRequestWithContext(context.Background(),
 		http.MethodGet, url, nil)
 	if err != nil {
@@ -73,55 +73,10 @@ func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
 
 }
 
-// Write countries to .csv file
-func CountryOutputCSV(countries []Countries) error {
-	file, err := os.Create("countries.csv")
-	if err != nil {
-		return fmt.Errorf("failed creating file: %s", err)
-	}
-	defer file.Close()
-	w := csv.NewWriter(file)
-	defer w.Flush()
-	header := []string{"countryCode", "name"}
-	err = w.Write(header)
-	if err != nil {
-		return fmt.Errorf("problem writing header: %s", err)
-	}
-	for _, v := range countries {
-		row := []string{v.Code, v.Name}
-		err = w.Write(row)
-		if err != nil {
-			return fmt.Errorf("problem writing to file: %s", err)
-		}
-
-	}
-	fmt.Println("country.csv file saved successfully")
-	return nil
-}
-
-// Write countries to .json file
-func CountryOutputJSON(countries []Countries) error {
-	file, err := os.Create("countries.json")
-	if err != nil {
-		return fmt.Errorf("failed creating file: %s", err)
-	}
-	defer file.Close()
-	jsonData, err := json.Marshal(countries)
-	if err != nil {
-		return fmt.Errorf("problem running marshaler: %s", err)
-	}
-	err = os.WriteFile("countries.json", jsonData, 0644)
-	if err != nil {
-		return fmt.Errorf("problem writing file: %s", err)
-	}
-	fmt.Println("countries.json file saved successfully")
-	return nil
-}
-
-func GetHolidays(client *http.Client, year string, countryCode string, debug bool) ([]Holiday, error) {
-
+// Get Holidays from Nager
+func GetHolidays(client *http.Client, baseURL string, year string, countryCode string, debug bool) ([]Holiday, error) {
 	//Setup context, Get, and URL
-	url := fmt.Sprintf("https://date.nager.at/api/v3/PublicHolidays/%s/%s", year, countryCode)
+	url := fmt.Sprintf("%s/PublicHolidays/%s/%s", baseURL, year, countryCode)
 	req, err := http.NewRequestWithContext(context.Background(),
 		http.MethodGet, url, nil)
 	if err != nil {
@@ -162,7 +117,7 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 	return holidays, nil
 }
 
-// Main holiday enrichment helper. Sends to smaller programs for individual enrichments
+// Main holiday enrichment helper. Sends to smaller functions for individual enrichments
 func EnrichHolidays(rawHolidays []Holiday) ([]Holiday, error) {
 	// Parse date returned from API to the actual day of week to send to helper functions
 	// Use same loop for other enrichment functions
@@ -214,7 +169,7 @@ func isToday(t time.Time) bool {
 
 }
 
-// Print country list to stdout for piping to other programs
+// Output country list to stdout for piping to other programs
 func CountryStdout(countries []Countries) error {
 	jsonData, err := json.Marshal(countries)
 	if err != nil {
@@ -234,63 +189,13 @@ func HolidayStdout(holidays []Holiday) error {
 	return nil
 }
 
-// Output holidays with enrichments to .csv file with a header
-func HolidayOutputCSV(holidays []Holiday) error {
-	file, err := os.Create("holidays.csv")
-	if err != nil {
-		return fmt.Errorf("failed creating file: %s", err)
-	}
-	defer file.Close()
-	w := csv.NewWriter(file)
-	defer w.Flush()
-	header := []string{"Date", "CountryCode", "Name", "Global", "Weekday", "UnderThirty", "DaysAway", "isToday"}
-	err = w.Write(header)
-	if err != nil {
-		return fmt.Errorf("problem writing header: %s", err)
-	}
-	for _, holiday := range holidays {
-		row := []string{holiday.Date, holiday.CountryCode, holiday.Name,
-			strconv.FormatBool(holiday.Global), holiday.Weekday,
-			strconv.FormatBool(holiday.UnderThirty),
-			strconv.Itoa(holiday.DaysAway),
-			strconv.FormatBool(holiday.IsToday),
-		}
-		err = w.Write(row)
-		if err != nil {
-			return fmt.Errorf("problem writing to file: %s", err)
-		}
-
-	}
-	fmt.Println("holiday.csv file saved successfully")
-	return nil
-}
-
-// Output holidays with enrichments to .json file
-func HolidayOutputJSON(holidays []Holiday) error {
-	file, err := os.Create("holidays.json")
-	if err != nil {
-		return fmt.Errorf("failed creating file: %s", err)
-	}
-	defer file.Close()
-	jsonData, err := json.Marshal(holidays)
-	if err != nil {
-		return fmt.Errorf("problem running marshaler: %s", err)
-	}
-	err = os.WriteFile("holidays.json", jsonData, 0644)
-	if err != nil {
-		return fmt.Errorf("problem writing file: %s", err)
-	}
-	fmt.Println("holiday.json file saved successfully")
-	return nil
-}
-
 // Prints all available countries if flag is used using text/tabwriter
 func PrintCountries(countries []Countries) {
 	fmt.Print("The two letter codes for all countries are as follows.\n\n")
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	for i, v := range countries {
 		fmt.Fprintf(w, "%d. %s (%s)\t", i+1, v.Name, v.Code)
-		if (i+1)%5 == 0 {
+		if (i+1)%4 == 0 {
 			fmt.Fprintln(w)
 		}
 	}
@@ -327,4 +232,99 @@ func PrintHolidays(holidays []Holiday, year string, countryCode string, federalO
 		}
 		count++
 	}
+}
+
+// Write countries to .csv file
+func CountryOutputCSV(countries []Countries) error {
+	file, err := os.Create("countries.csv")
+	if err != nil {
+		return fmt.Errorf("failed creating file: %s", err)
+	}
+	defer file.Close()
+	w := csv.NewWriter(file)
+	defer w.Flush()
+	header := []string{"countryCode", "name"}
+	err = w.Write(header)
+	if err != nil {
+		return fmt.Errorf("problem writing header: %s", err)
+	}
+	for _, v := range countries {
+		row := []string{v.Code, v.Name}
+		err = w.Write(row)
+		if err != nil {
+			return fmt.Errorf("problem writing to file: %s", err)
+		}
+
+	}
+	fmt.Println("country.csv file saved successfully")
+	return nil
+}
+
+// Write countries to .json file
+func CountryOutputJSON(countries []Countries) error {
+	file, err := os.Create("countries.json")
+	if err != nil {
+		return fmt.Errorf("failed creating file: %s", err)
+	}
+	defer file.Close()
+	jsonData, err := json.Marshal(countries)
+	if err != nil {
+		return fmt.Errorf("problem running marshaler: %s", err)
+	}
+	err = os.WriteFile("countries.json", jsonData, 0644)
+	if err != nil {
+		return fmt.Errorf("problem writing file: %s", err)
+	}
+	fmt.Println("countries.json file saved successfully")
+	return nil
+}
+
+// Write holidays with enrichments to .csv file with a header
+func HolidayOutputCSV(holidays []Holiday) error {
+	file, err := os.Create("holidays.csv")
+	if err != nil {
+		return fmt.Errorf("failed creating file: %s", err)
+	}
+	defer file.Close()
+	w := csv.NewWriter(file)
+	defer w.Flush()
+	header := []string{"Date", "CountryCode", "Name", "Global", "Weekday", "UnderThirty", "DaysAway", "isToday"}
+	err = w.Write(header)
+	if err != nil {
+		return fmt.Errorf("problem writing header: %s", err)
+	}
+	for _, holiday := range holidays {
+		row := []string{holiday.Date, holiday.CountryCode, holiday.Name,
+			strconv.FormatBool(holiday.Global), holiday.Weekday,
+			strconv.FormatBool(holiday.UnderThirty),
+			strconv.Itoa(holiday.DaysAway),
+			strconv.FormatBool(holiday.IsToday),
+		}
+		err = w.Write(row)
+		if err != nil {
+			return fmt.Errorf("problem writing to file: %s", err)
+		}
+
+	}
+	fmt.Println("holiday.csv file saved successfully")
+	return nil
+}
+
+// Write holidays with enrichments to .json file
+func HolidayOutputJSON(holidays []Holiday) error {
+	file, err := os.Create("holidays.json")
+	if err != nil {
+		return fmt.Errorf("failed creating file: %s", err)
+	}
+	defer file.Close()
+	jsonData, err := json.Marshal(holidays)
+	if err != nil {
+		return fmt.Errorf("problem running marshaler: %s", err)
+	}
+	err = os.WriteFile("holidays.json", jsonData, 0644)
+	if err != nil {
+		return fmt.Errorf("problem writing file: %s", err)
+	}
+	fmt.Println("holiday.json file saved successfully")
+	return nil
 }

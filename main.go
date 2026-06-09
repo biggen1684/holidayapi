@@ -28,7 +28,7 @@ func main() {
 
 	// Fetch country list from Nager API
 	if *listCountries == true {
-		countries, err := api.ListCountries(client, *debug)
+		countries, err := api.ListCountries(client, "https://date.nager.at/api/v3", *debug)
 		if err != nil {
 			fmt.Printf("Error: %s.\n", err)
 			return
@@ -68,7 +68,7 @@ func main() {
 	}
 
 	// Get holidays from Nager API
-	rawHolidays, err := api.GetHolidays(client, *year, *countryCode, *debug)
+	rawHolidays, err := api.GetHolidays(client, "https://date.nager.at/api/v3", *year, *countryCode, *debug)
 	if err != nil {
 		fmt.Printf("Error: %s.\n", err)
 		return
