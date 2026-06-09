@@ -9,12 +9,13 @@ A command-line tool that fetches public holidays for a given country and year us
 - Look up public holidays for any supported country and year
 - Defaults to the current year and the United States
 - Prints the number of days until each upcoming holiday
-- Prints only federally recognized holidays, or all holidays
+- Prints only federally recognized holidays or all holidays
 - Prints if today is a holiday
 - List every country code the API supports
 - Colorizes holidays within 30 days in blue (enabled by default)
 - Option to save output to a `.csv` file (for both holidays and countries)
 - Option to save output to a `.json` file (for both holidays and countries)
+- Option to send output directly to `-stdout` (for both holidays and countries)
 - Debug mode to print the raw API response (for troubleshooting)
 
 ## Installation
@@ -89,16 +90,29 @@ Print the raw API response (useful for troubleshooting):
 ./holidayapi -debug
 ```
 
+Output holidays directly to `stdout` for other programs to use for input:
+
+```bash
+./holidayapi -stdout
+```
+
+Output countries directly to `stdout` for other programs to use for input:
+
+```bash
+./holidayapi -listcountries -stdout
+```
+
 ## Flags
 
 - `-year` — The year to look up, in `YYYY` format. Default: current year.
 - `-countrycode` — Two-letter ISO 3166-1 alpha-2 country code. Default: `US`.
-- `-federalonly` — Show only federal holidays. Default: `true`. Use `-federalonly=false` to show all.
+- `-federalonly` — Print only federal holidays. Default: `true`. Use `-federalonly=false` to show all. Affects only printing to terminal. Json, CSV, and `stdout` include all holidays returned from Nager for country requested.
 - `-listcountries` — List all available country codes. Add `-savecsv` or `-savejson` to output list containing countries.
 - `-savecsv` — Save holidays or countries to `.csv`. Use `-savecsv` to enable. File names are `holidays.csv` and `countries.csv`.
 - `-savejson` — Save holidays or countries to `.json`. Use `-savejson` to enable. File names are `holidays.json` and `countries.json`.
 - `-color` — Colorize holidays within 30 days in blue. Default: `true`. Use `-color=false` to disable.
 - `-debug` — Print the raw API response for debugging. Use `-debug` to enable.
+- `-stdout` — Output data as JSON to stdout for use by other programs. Exits immediately after output. Overrides `-savecsv`, `-savejson`, and terminal printing. Use with `-listcountries` to pipe country data or with `-countrycode` and 2 letter code to pipe holiday data.
 
 ## Holiday Output Example
 
@@ -134,7 +148,7 @@ The two letter codes for all countries are as follows.
 ...snip...
 ```
 
-## Output Fields for holidays in JSON and CSV files
+## Output Fields for holidays in JSON, CSV (headers), and stdout
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -147,7 +161,7 @@ The two letter codes for all countries are as follows.
 | `daysAway` | int | Days until the holiday. Negative values indicate days elapsed since the holiday passed |
 | `isToday` | bool | `true` if holiday is today |
 
-## Output Fields for countries in JSON and CSV files
+## Output Fields for countries in JSON, CSV (headers), and stdout
 
 | Field | Type | Description |
 |-------|------|-------------|

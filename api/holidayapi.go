@@ -73,6 +73,7 @@ func ListCountries(client *http.Client, debug bool) ([]Countries, error) {
 
 }
 
+// Write countries to .csv file
 func CountryOutputCSV(countries []Countries) error {
 	file, err := os.Create("countries.csv")
 	if err != nil {
@@ -98,6 +99,7 @@ func CountryOutputCSV(countries []Countries) error {
 	return nil
 }
 
+// Write countries to .json file
 func CountryOutputJSON(countries []Countries) error {
 	file, err := os.Create("countries.json")
 	if err != nil {
@@ -160,8 +162,9 @@ func GetHolidays(client *http.Client, year string, countryCode string, debug boo
 	return holidays, nil
 }
 
+// Main holiday enrichment helper. Sends to smaller programs for individual enrichments
 func EnrichHolidays(rawHolidays []Holiday) ([]Holiday, error) {
-	// Parse date returned from API to actual day of week for printing
+	// Parse date returned from API to the actual day of week to send to helper functions
 	// Use same loop for other enrichment functions
 	for i, v := range rawHolidays {
 		t, err := time.ParseInLocation("2006-01-02", v.Date, time.Local)
@@ -209,6 +212,26 @@ func isToday(t time.Time) bool {
 	}
 	return false
 
+}
+
+// Print country list to stdout for piping to other programs
+func CountryStdout(countries []Countries) error {
+	jsonData, err := json.Marshal(countries)
+	if err != nil {
+		return fmt.Errorf("problem marshaling countries for stdout: %s", err)
+	}
+	fmt.Print(string(jsonData))
+	return nil
+}
+
+// Output holidays with enrichments to stdout for piping to other programs
+func HolidayStdout(holidays []Holiday) error {
+	jsonData, err := json.Marshal(holidays)
+	if err != nil {
+		return fmt.Errorf("problem marshaling holidays for stdout: %s", err)
+	}
+	fmt.Print(string(jsonData))
+	return nil
 }
 
 // Output holidays with enrichments to .csv file with a header
